@@ -1,4 +1,4 @@
-﻿module ListSearch
+﻿module NumberSearch
 
 let findFirst (value: 'a) (list: 'a list) : int option =
     let rec loop index remaining =

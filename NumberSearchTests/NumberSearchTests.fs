@@ -1,7 +1,7 @@
-﻿module ListSearchTests
+﻿module NumberSearchTests
 
 open NUnit.Framework
-open ListSearch
+open NumberSearch
 
 [<TestFixture>]
 type SearchTests() =

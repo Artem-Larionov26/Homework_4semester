@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37012.4 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NumberOfDegree", "NumberOfDegree.fsproj", "{E2BDBDB0-8319-49B2-907F-3E3EEFA8432D}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NumberOfDegreeTests", "..\NumberOfDegreeTests\NumberOfDegreeTests.fsproj", "{9C5C33A7-5383-4540-A8E8-AACEE39E3CB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E2BDBDB0-8319-49B2-907F-3E3EEFA8432D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2BDBDB0-8319-49B2-907F-3E3EEFA8432D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2BDBDB0-8319-49B2-907F-3E3EEFA8432D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2BDBDB0-8319-49B2-907F-3E3EEFA8432D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C5C33A7-5383-4540-A8E8-AACEE39E3CB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C5C33A7-5383-4540-A8E8-AACEE39E3CB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C5C33A7-5383-4540-A8E8-AACEE39E3CB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C5C33A7-5383-4540-A8E8-AACEE39E3CB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {01FA88DA-86CD-4F56-81F9-3B171B6F526E}
+	EndGlobalSection
+EndGlobal

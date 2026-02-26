@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37012.4 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TreeMap", "TreeMap.fsproj", "{582CC446-0F8D-48F0-A540-C2D5B9DB820A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TreeMapTests", "..\TreeMapTests\TreeMapTests.fsproj", "{B8CC6928-A9CA-41D8-B838-8AC0C171B3CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{582CC446-0F8D-48F0-A540-C2D5B9DB820A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{582CC446-0F8D-48F0-A540-C2D5B9DB820A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{582CC446-0F8D-48F0-A540-C2D5B9DB820A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{582CC446-0F8D-48F0-A540-C2D5B9DB820A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8CC6928-A9CA-41D8-B838-8AC0C171B3CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8CC6928-A9CA-41D8-B838-8AC0C171B3CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8CC6928-A9CA-41D8-B838-8AC0C171B3CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8CC6928-A9CA-41D8-B838-8AC0C171B3CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D210C2CD-AD69-49EF-95C2-53F16444E895}
+	EndGlobalSection
+EndGlobal

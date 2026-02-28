@@ -1,0 +1,56 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\begin{document}
+
+\[
+S = \lambda x.\lambda y.\lambda z.\, x z (y z)
+\]
+
+\[
+K = \lambda x.\lambda y.\, x
+\]
+
+\[
+I = \lambda x.\, x
+\]
+
+\[
+S K K
+\]
+
+
+\[
+(\lambda x.\lambda y.\lambda z.\, x z (y z))\, K\, K
+\]
+
+\[
+\to (\lambda y.\lambda z.\, K z (y z))\, K
+\]
+
+\[
+\to \lambda z.\, K z (K z)
+\]
+
+\[
+K z = (\lambda a.\lambda b.\, a)\, z
+\to \lambda b.\, z
+\]
+
+\[
+\lambda z.\, (\lambda b.\, z)(K z)
+\]
+
+\[
+(\lambda b.\, z)(K z) \to z
+\]
+
+\[
+\lambda z.\, z
+\]
+
+\[
+S K K = \lambda z.\, z = I
+\]
+
+\end{document}

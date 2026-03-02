@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37012.4 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ParenthesisSequence", "ParenthesisSequence.fsproj", "{4849009C-53AE-49A8-934D-DA9B1EFAC066}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ParenthesisSequenceTests", "..\ParenthesisSequenceTests\ParenthesisSequenceTests.fsproj", "{03E896CD-94A5-4288-AA01-D25F2D71362F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4849009C-53AE-49A8-934D-DA9B1EFAC066}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4849009C-53AE-49A8-934D-DA9B1EFAC066}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4849009C-53AE-49A8-934D-DA9B1EFAC066}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4849009C-53AE-49A8-934D-DA9B1EFAC066}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03E896CD-94A5-4288-AA01-D25F2D71362F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03E896CD-94A5-4288-AA01-D25F2D71362F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03E896CD-94A5-4288-AA01-D25F2D71362F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03E896CD-94A5-4288-AA01-D25F2D71362F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7B6E3929-C805-4081-B1AB-76BF8F8EEEEC}
+	EndGlobalSection
+EndGlobal

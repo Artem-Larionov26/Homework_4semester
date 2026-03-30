@@ -12,4 +12,4 @@ let powersOfTwo (n: int) (m: int) : bigint list =
             else
                 loop (count + 1) (current * 2I) (current :: acc)
 
-        loop 0 start []
+        loop 0 start [] 

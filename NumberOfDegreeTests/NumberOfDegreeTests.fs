@@ -29,4 +29,4 @@ type PowerSeriesTests() =
         Assert.That(
             (fun () -> powersOfTwo 2 -1 |> ignore),
             Throws.TypeOf<System.ArgumentException>()
-        )
+        ) 

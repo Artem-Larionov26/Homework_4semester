@@ -14,15 +14,15 @@ type LambdaTests() =
     member _.``Identity reduces correctly``() =
         let id = lam "x" (v "x")
         let expr = app id (v "y")
-        let result = normalize expr
-        Assert.That(result, Is.EqualTo(v "y"))
+        let result = normalize 1000 expr
+        Assert.That(result, Is.EqualTo(Some (v "y")))
 
     [<Test>]
     member _.``K combinator works``() =
         let k = lam "x" (lam "y" (v "x"))
         let expr = app (app k (v "a")) (v "b")
-        let result = normalize expr
-        Assert.That(result, Is.EqualTo(v "a"))
+        let result = normalize 1000 expr
+        Assert.That(result, Is.EqualTo(Some (v "a")))
 
     [<Test>]
     member _.``SKK equals I``() =
@@ -38,9 +38,9 @@ type LambdaTests() =
 
         let k = lam "x" (lam "y" (v "x"))
         let expr = app (app s k) k
-        let result = normalize expr
+        let result = normalize 1000 expr
 
-        Assert.That(result, Is.EqualTo(lam "z" (v "z")))
+        Assert.That(result, Is.EqualTo(Some (lam "z" (v "z"))))
 
     [<Test>]
     member _.``Alpha conversion avoids capture``() =
@@ -49,10 +49,10 @@ type LambdaTests() =
                 (lam "x" (lam "y" (v "x")))
                 (v "y")
 
-        let result = normalize expr
+        let result = normalize 1000 expr
 
         match result with
-        | Lam (name, body) ->
+        | Some (Lam (name, body)) ->
             Assert.That(body, Is.EqualTo(v "y"))
             Assert.That(name <> "y")
         | _ ->
@@ -65,10 +65,10 @@ type LambdaTests() =
                 (lam "x" (lam "y" (app (v "x") (v "y"))))
                 (v "y")
 
-        let result = normalize expr
+        let result = normalize 1000 expr
 
         match result with
-        | Lam (name, body) ->
+        | Some (Lam (name, _)) ->
             Assert.That(name <> "y")
         | _ ->
             Assert.Fail("Expected lambda")

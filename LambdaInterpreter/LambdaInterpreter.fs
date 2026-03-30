@@ -22,25 +22,23 @@ let freshVar used =
 
 let rec substitute x s expr =
     match expr with
-    | Var y ->
-        if y = x then s else Var y
+    | Var y when y = x -> s
+    | Var _ -> expr
 
     | App (l, r) ->
         App (substitute x s l, substitute x s r)
 
+    | Lam (y, _) when y = x -> expr
     | Lam (y, body) ->
-        if y = x then
-            Lam (y, body)
+        let fvS = freeVars s
+        if Set.contains y fvS then
+            let used =
+                Set.union (freeVars body) fvS
+            let y' = freshVar used
+            let body' = substitute y (Var y') body
+            Lam (y', substitute x s body')
         else
-            let fvS = freeVars s
-            if Set.contains y fvS then
-                let used =
-                    Set.union (freeVars body) fvS
-                let y' = freshVar used
-                let body' = substitute y (Var y') body
-                Lam (y', substitute x s body')
-            else
-                Lam (y, substitute x s body)
+            Lam (y, substitute x s body)
 
 let rec reduce expr =
     match expr with
@@ -52,23 +50,18 @@ let rec reduce expr =
         if l' <> l then
             App (l', r)
         else
-            let r' = reduce r
-            if r' <> r then
-                App (l, r')
-            else
-                expr
+            App (l, reduce r)
 
     | Lam (x, body) ->
-        let body' = reduce body
-        if body' <> body then
-            Lam (x, body')
+        Lam (x, reduce body)
+
+    | Var _ -> expr
+
+let normalize maxSteps expr =
+    let rec loop steps expr =
+        if steps = 0 then None
         else
-            expr
-
-    | Var _ ->
-        expr
-
-let rec normalize expr =
-    let expr' = reduce expr
-    if expr' = expr then expr
-    else normalize expr'
+            let expr' = reduce expr
+            if expr' = expr then Some expr
+            else loop (steps - 1) expr'
+    loop maxSteps expr

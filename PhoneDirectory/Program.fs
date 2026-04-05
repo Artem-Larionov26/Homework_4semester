@@ -1,65 +1,60 @@
 ﻿open PhoneDirectory.Domain
 open PhoneDirectory.Persistence
 
+let readInput () =
+    System.Console.ReadLine().Trim()
+
 let rec loop book =
     printfn ""
-    printfn "1. Add"
-    printfn "2. Find by name"
-    printfn "3. Find by phone"
-    printfn "4. Show all"
-    printfn "5. Save"
-    printfn "6. Load"
-    printfn "0. Exit"
+    printfn "Commands:"
+    printfn "add <name> <phone>"
+    printfn "find-name <name>"
+    printfn "find-phone <phone>"
+    printfn "show"
+    printfn "save <path>"
+    printfn "load <path>"
+    printfn "exit"
 
-    match System.Console.ReadLine() with
-    | "1" ->
-        printf "Name: "
-        let name = System.Console.ReadLine()
-        printf "Phone: "
-        let phone = System.Console.ReadLine()
+    let input = readInput()
+
+    match input.Split ' ' |> Array.toList with
+    | ["add"; name; phone] ->
         loop (add name phone book)
 
-    | "2" ->
-        printf "Name: "
-        let name = System.Console.ReadLine()
+    | ["find-name"; name] ->
         match findByName name book with
         | Some phone -> printfn $"Phone: {phone}"
         | None -> printfn "Not found"
         loop book
 
-    | "3" ->
-        printf "Phone: "
-        let phone = System.Console.ReadLine()
+    | ["find-phone"; phone] ->
         match findByPhone phone book with
         | Some name -> printfn $"Name: {name}"
         | None -> printfn "Not found"
         loop book
 
-    | "4" ->
-        getAll book
-        |> List.iter (fun e -> printfn $"{e.Name} - {e.Phone}")
+    | ["show"] ->
+        book |> List.iter (fun e -> printfn $"{e.Name} - {e.Phone}")
         loop book
 
-    | "5" ->
-        printf "File path: "
-        let path = System.Console.ReadLine()
-        saveToFile path book
+    | ["save"; path] ->
+        match saveToFile path book with
+        | Ok () -> printfn "Saved"
+        | Error e -> printfn $"Error: {e}"
         loop book
 
-    | "6" ->
-        printf "File path: "
-        let path = System.Console.ReadLine()
-        let newBook = loadFromFile path
-        loop newBook
+    | ["load"; path] ->
+        match loadFromFile path with
+        | Ok newBook -> loop newBook
+        | Error e ->
+            printfn $"Error: {e}"
+            loop book
 
-    | "0" ->
+    | ["exit"] ->
         ()
 
     | _ ->
-        printfn "Invalid option"
+        printfn "Invalid command"
         loop book
 
-[<EntryPoint>]
-let main _ =
-    loop empty
-    0
+loop empty

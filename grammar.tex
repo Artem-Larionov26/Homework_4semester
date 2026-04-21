@@ -1,0 +1,138 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{listings}
+\geometry{margin=2.5cm}
+
+\title{Факторизованная грамматика для продвинутого лямбда-интерпретатора}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Условие}
+Требуется построить факторизованную однозначную грамматику без
+$\varepsilon$-переходов для языка лямбда-выражений с именованными
+определениями вида \texttt{let}. Поддерживаются:
+\begin{itemize}
+    \item переменные;
+    \item аппликация;
+    \item лямбда-абстракция;
+    \item скобки;
+    \item несколько параметров у лямбда-абстракции;
+    \item набор именованных определений перед основным выражением.
+\end{itemize}
+
+\section*{Терминалы}
+Будем считать, что лексический анализатор выделяет следующие токены:
+\begin{itemize}
+    \item \texttt{LET} --- ключевое слово \texttt{let};
+    \item \texttt{LAM} --- символ \texttt{\textbackslash};
+    \item \texttt{DOT} --- символ \texttt{.};
+    \item \texttt{EQ} --- символ \texttt{=};
+    \item \texttt{LPAREN}, \texttt{RPAREN} --- скобки \texttt{(} и \texttt{)};
+    \item \texttt{IDENT} --- идентификатор (кроме ключевого слова \texttt{let});
+    \item \texttt{NL} --- конец строки.
+\end{itemize}
+
+\section*{Грамматика}
+
+\begin{align*}
+\textit{Program} &::= \textit{Definitions}\ \textit{Expr}
+                  \mid \textit{Expr} \\
+\textit{Definitions} &::= \textit{Definition}
+                      \mid \textit{Definition}\ \textit{Definitions} \\
+\textit{Definition} &::= \texttt{LET}\ \texttt{IDENT}\ \texttt{EQ}\ \textit{Expr}\ \texttt{NL} \\
+\textit{Expr} &::= \textit{Lambda}
+               \mid \textit{Application} \\
+\textit{Lambda} &::= \texttt{LAM}\ \textit{Params}\ \texttt{DOT}\ \textit{Expr} \\
+\textit{Params} &::= \texttt{IDENT}
+                 \mid \texttt{IDENT}\ \textit{Params} \\
+\textit{Application} &::= \textit{Atom}
+                      \mid \textit{Atom}\ \textit{Application} \\
+\textit{Atom} &::= \texttt{IDENT}
+               \mid \texttt{LPAREN}\ \textit{Expr}\ \texttt{RPAREN}
+\end{align*}
+
+\section*{Свойства грамматики}
+
+\begin{itemize}
+    \item В грамматике отсутствуют $\varepsilon$-продукции.
+    \item Грамматика не содержит левой рекурсии.
+    \item Лямбда-абстракция однозначно распознаётся по начальному символу \texttt{\textbackslash}.
+    \item Аппликация задаётся как непустая последовательность атомов.
+\end{itemize}
+
+Последовательность атомов
+\[
+a_1\ a_2\ \dots\ a_n
+\]
+интерпретируется как левоассоциативная аппликация:
+\[
+(((a_1\ a_2)\ a_3)\dots a_n).
+\]
+
+Лямбда-абстракция с несколькими параметрами
+\[
+\texttt{\textbackslash x y z.M}
+\]
+интерпретируется как
+\[
+\texttt{\textbackslash x.\textbackslash y.\textbackslash z.M}.
+\]
+
+\section*{Пример вывода 1}
+
+Выведем выражение:
+\[
+\texttt{\textbackslash x y.x}
+\]
+
+\begin{align*}
+\textit{Expr}
+&\Rightarrow \textit{Lambda} \\
+&\Rightarrow \texttt{LAM}\ \textit{Params}\ \texttt{DOT}\ \textit{Expr} \\
+&\Rightarrow \texttt{LAM}\ \texttt{IDENT}\ \textit{Params}\ \texttt{DOT}\ \textit{Expr} \\
+&\Rightarrow \texttt{LAM}\ \texttt{IDENT}\ \texttt{IDENT}\ \texttt{DOT}\ \textit{Expr} \\
+&\Rightarrow \texttt{LAM}\ \texttt{IDENT}\ \texttt{IDENT}\ \texttt{DOT}\ \textit{Application} \\
+&\Rightarrow \texttt{LAM}\ \texttt{IDENT}\ \texttt{IDENT}\ \texttt{DOT}\ \textit{Atom} \\
+&\Rightarrow \texttt{LAM}\ \texttt{IDENT}\ \texttt{IDENT}\ \texttt{DOT}\ \texttt{IDENT}
+\end{align*}
+
+\section*{Пример вывода 2}
+
+Выведем выражение:
+\[
+\texttt{S K K}
+\]
+
+\begin{align*}
+\textit{Expr}
+&\Rightarrow \textit{Application} \\
+&\Rightarrow \textit{Atom}\ \textit{Application} \\
+&\Rightarrow \texttt{IDENT}\ \textit{Application} \\
+&\Rightarrow \texttt{IDENT}\ \textit{Atom}\ \textit{Application} \\
+&\Rightarrow \texttt{IDENT}\ \texttt{IDENT}\ \textit{Application} \\
+&\Rightarrow \texttt{IDENT}\ \texttt{IDENT}\ \textit{Atom} \\
+&\Rightarrow \texttt{IDENT}\ \texttt{IDENT}\ \texttt{IDENT}
+\end{align*}
+
+\section*{Пример программы}
+
+\begin{lstlisting}
+let S = \x y z.x z (y z)
+let K = \x y.x
+S K K
+\end{lstlisting}
+
+\noindent
+Первые две строки соответствуют нетерминалу \textit{Definitions}, последняя строка --- \textit{Expr}.
+
+\end{document}

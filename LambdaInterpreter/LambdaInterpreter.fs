@@ -5,63 +5,78 @@ type Expr =
     | Lam of string * Expr
     | App of Expr * Expr
 
-let rec freeVars expr =
-    match expr with
+let rec freeVars =
+    function
     | Var x -> Set.singleton x
-    | Lam (x, body) ->
-        freeVars body |> Set.remove x
-    | App (l, r) ->
-        Set.union (freeVars l) (freeVars r)
+    | Lam (x, body) -> freeVars body |> Set.remove x
+    | App (left, right) -> Set.union (freeVars left) (freeVars right)
+
+let rec vars =
+    function
+    | Var x -> Set.singleton x
+    | Lam (x, body) -> Set.add x (vars body)
+    | App (left, right) -> Set.union (vars left) (vars right)
 
 let freshVar used =
-    let rec loop i =
-        let name = "x" + string i
-        if Set.contains name used then loop (i + 1)
+    let rec loop index =
+        let name = "x" + string index
+        if Set.contains name used then loop (index + 1)
         else name
+
     loop 0
 
-let rec substitute x s expr =
-    match expr with
-    | Var y when y = x -> s
-    | Var _ -> expr
+let rec substitute x substitution =
+    function
+    | Var y when y = x -> substitution
+    | Var y -> Var y
 
-    | App (l, r) ->
-        App (substitute x s l, substitute x s r)
+    | App (left, right) ->
+        App (substitute x substitution left, substitute x substitution right)
 
-    | Lam (y, _) when y = x -> expr
+    | Lam (y, body) when y = x ->
+        Lam (y, body)
+
     | Lam (y, body) ->
-        let fvS = freeVars s
-        if Set.contains y fvS then
-            let used =
-                Set.union (freeVars body) fvS
-            let y' = freshVar used
-            let body' = substitute y (Var y') body
-            Lam (y', substitute x s body')
-        else
-            Lam (y, substitute x s body)
+        let freeSubstitutionVars = freeVars substitution
+        let freeBodyVars = freeVars body
 
-let rec reduce expr =
-    match expr with
-    | App (Lam (x, body), arg) ->
-        substitute x arg body
+        if Set.contains y freeSubstitutionVars && Set.contains x freeBodyVars then
+            let usedVars =
+                Set.union (vars body) (vars substitution)
 
-    | App (l, r) ->
-        let l' = reduce l
-        if l' <> l then
-            App (l', r)
+            let newName = freshVar usedVars
+            let renamedBody = substitute y (Var newName) body
+
+            Lam (newName, substitute x substitution renamedBody)
         else
-            App (l, reduce r)
+            Lam (y, substitute x substitution body)
+
+let rec reduce =
+    function
+    | App (Lam (x, body), argument) ->
+        substitute x argument body
+
+    | App (left, right) ->
+        let reducedLeft = reduce left
+
+        if reducedLeft <> left then
+            App (reducedLeft, right)
+        else
+            App (left, reduce right)
 
     | Lam (x, body) ->
         Lam (x, reduce body)
 
-    | Var _ -> expr
+    | Var x ->
+        Var x
 
-let normalize maxSteps expr =
-    let rec loop steps expr =
-        if steps = 0 then None
+let rec normalize maxSteps expr =
+    if maxSteps = 0 then
+        None
+    else
+        let reduced = reduce expr
+
+        if reduced = expr then
+            Some expr
         else
-            let expr' = reduce expr
-            if expr' = expr then Some expr
-            else loop (steps - 1) expr'
-    loop maxSteps expr
+            normalize (maxSteps - 1) reduced

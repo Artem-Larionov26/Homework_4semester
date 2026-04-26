@@ -1,19 +1,21 @@
 ﻿module PointFreeTests
 
 open NUnit.Framework
-open FsCheck
+open FsUnit
 open FsCheck.NUnit
-open NUnit.Framework.Legacy
 open PointFree
 
-[<TestFixture>]
-type PointFreeTests() =
+[<Test>]
+let ``simple example`` () =
+    pointFree 3 [1; 2; 3] |> should equal [3; 6; 9]
 
-    [<Test>]
-    member _.``Simple example``() =
-        let result = multiplyEachBy 3 [1;2;3]
-        CollectionAssert.AreEqual([3;6;9], result)
+[<Property>]
+let ``point-free version equals original`` (x: int) (l: int list) =
+    originalFunction x l = pointFree x l
 
-    [<Property>]
-    member _.``Point-free version equals original`` (x:int) (l:int list) =
-        multiplyEachByOriginal x l = multiplyEachBy x l
+[<Property>]
+let ``all derivation steps are equivalent`` (x: int) (l: int list) =
+    originalFunction x l = withoutListArgument x l
+    && originalFunction x l = withOperator x l
+    && originalFunction x l = withFlip x l
+    && originalFunction x l = pointFree x l

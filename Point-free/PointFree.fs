@@ -1,16 +1,18 @@
 ﻿module PointFree
 
-// The original function
-let multiplyEachByOriginal x l =
+let flip f x y = f y x
+
+let originalFunction x l =
     List.map (fun y -> y * x) l
 
-// Withdrawal Steps:
-//
-// multiplyEachByOriginal x l = List.map (fun y -> y * x) l
-// => multiplyEachByOriginal x = List.map (fun y -> y * x)
-// => fun y -> y * x = (*) x
-// => multiplyEachByOriginal x = List.map ((*) x)
-// => multiplyEachBy = List.map << (*)
+let withoutListArgument x =
+    List.map (fun y -> y * x)
 
-let multiplyEachBy =
-    List.map << (*)
+let withOperator x =
+    List.map (fun y -> (*) y x)
+
+let withFlip x =
+    List.map (flip (*) x)
+
+let pointFree =
+    List.map << flip (*)

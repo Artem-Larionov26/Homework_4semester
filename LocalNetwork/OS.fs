@@ -1,12 +1,20 @@
 ﻿namespace LocalNetwork
 
-type OS =
-    | Windows
-    | Linux
-    | Mac
+type IOperatingSystem =
+    abstract Name: string
+    abstract InfectionProbability: float
 
-    member this.InfectionProbability =
-        match this with
-        | Windows -> 0.7
-        | Linux -> 0.3
-        | Mac -> 0.5
+type Windows() =
+    interface IOperatingSystem with
+        member _.Name = "Windows"
+        member _.InfectionProbability = 0.7
+
+type Linux() =
+    interface IOperatingSystem with
+        member _.Name = "Linux"
+        member _.InfectionProbability = 0.3
+
+type MacOS() =
+    interface IOperatingSystem with
+        member _.Name = "MacOS"
+        member _.InfectionProbability = 0.5

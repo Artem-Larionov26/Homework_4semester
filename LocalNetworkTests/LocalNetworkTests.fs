@@ -1,67 +1,100 @@
-﻿module LocalNetwork.Tests
+﻿module LocalNetworkTests
 
 open NUnit.Framework
 open FsUnit
 open LocalNetwork
 
-type AlwaysInfectRandom() =
+type TestOS(probability: float) =
+    interface IOperatingSystem with
+        member _.Name = "TestOS"
+        member _.InfectionProbability = probability
+
+type AlwaysSuccessfulRandom() =
     interface IRandom with
         member _.Next() = 0.0
 
-type NeverInfectRandom() =
-    interface IRandom with
-        member _.Next() = 1.0
-
 [<Test>]
-let ``Infection spreads step by step`` () =
-    let computers =
-        [ Computer(OS.Windows)
-          Computer(OS.Windows)
-          Computer(OS.Windows) ]
+let ``infection with probability one works like BFS`` () =
+    let os = TestOS(1.0) :> IOperatingSystem
 
-    let adjacency = array2D [ [ false; true; false ]
-                              [ true; false; true ]
-                              [ false; true; false ] ]
+    let computers =
+        [ Computer(os, true)
+          Computer(os)
+          Computer(os) ]
+
+    let adjacency =
+        array2D
+            [ [ false; true; false ]
+              [ true; false; true ]
+              [ false; true; false ] ]
 
     let network = Network(computers, adjacency)
+    let random = AlwaysSuccessfulRandom() :> IRandom
 
-    computers[0].Infect()
+    network.Step random.Next
 
-    let rnd = AlwaysInfectRandom() :> IRandom
-
-    network.Step(rnd.Next)
+    computers[0].IsInfected |> should equal true
     computers[1].IsInfected |> should equal true
     computers[2].IsInfected |> should equal false
 
-    network.Step(rnd.Next)
+    network.Step random.Next
+
+    computers[0].IsInfected |> should equal true
+    computers[1].IsInfected |> should equal true
     computers[2].IsInfected |> should equal true
 
 [<Test>]
-let ``No infection when probability is zero`` () =
-    let computers =
-        [ Computer(OS.Linux)
-          Computer(OS.Linux) ]
+let ``infection with probability zero does not spread`` () =
+    let os = TestOS(0.0) :> IOperatingSystem
 
-    let adjacency = array2D [ [ false; true ]
-                              [ true; false ] ]
+    let computers =
+        [ Computer(os, true)
+          Computer(os) ]
+
+    let adjacency =
+        array2D
+            [ [ false; true ]
+              [ true; false ] ]
 
     let network = Network(computers, adjacency)
+    let random = AlwaysSuccessfulRandom() :> IRandom
 
-    computers[0].Infect()
+    network.Step random.Next
 
-    let rnd = NeverInfectRandom() :> IRandom
-
-    network.Step(rnd.Next)
-
+    computers[0].IsInfected |> should equal true
     computers[1].IsInfected |> should equal false
 
 [<Test>]
-let ``Already infected computer stays infected`` () =
-    let comp = Computer(OS.Windows)
-    comp.Infect()
+let ``can change is false when there are no healthy neighbours`` () =
+    let os = TestOS(1.0) :> IOperatingSystem
 
-    let rnd = NeverInfectRandom() :> IRandom
+    let computers =
+        [ Computer(os, true)
+          Computer(os, true) ]
 
-    comp.TryInfect(rnd.Next)
+    let adjacency =
+        array2D
+            [ [ false; true ]
+              [ true; false ] ]
 
-    comp.IsInfected |> should equal true
+    let network = Network(computers, adjacency)
+
+    network.CanChange |> should equal false
+
+[<Test>]
+let ``can change is false when neighbour has zero infection probability`` () =
+    let infectedOS = TestOS(1.0) :> IOperatingSystem
+    let safeOS = TestOS(0.0) :> IOperatingSystem
+
+    let computers =
+        [ Computer(infectedOS, true)
+          Computer(safeOS) ]
+
+    let adjacency =
+        array2D
+            [ [ false; true ]
+              [ true; false ] ]
+
+    let network = Network(computers, adjacency)
+
+    network.CanChange |> should equal false

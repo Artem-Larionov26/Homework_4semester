@@ -1,10 +1,12 @@
 ﻿namespace LocalNetwork
 
+open System
+
 type IRandom =
     abstract Next: unit -> float
 
 type RealRandom() =
-    let rnd = System.Random()
+    let random = Random(DateTime.Now.Millisecond)
 
     interface IRandom with
-        member _.Next() = rnd.NextDouble()
+        member _.Next() = random.NextDouble()

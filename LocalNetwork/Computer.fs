@@ -1,18 +1,17 @@
 ﻿namespace LocalNetwork
 
-type Computer(os: OS) =
-    let mutable infected = false
+type Computer(os: IOperatingSystem, infected: bool) =
+    let mutable isInfected = infected
+
+    new(os: IOperatingSystem) = Computer(os, false)
 
     member _.OS = os
 
-    member _.IsInfected
-        with get() = infected
+    member _.IsInfected = isInfected
 
     member _.Infect() =
-        infected <- true
+        isInfected <- true
 
     member _.TryInfect(random: unit -> float) =
-        if not infected then
-            let chance = random()
-            if chance < os.InfectionProbability then
-                infected <- true
+        if not isInfected && random() < os.InfectionProbability then
+            isInfected <- true

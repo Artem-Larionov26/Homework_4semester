@@ -1,7 +1,5 @@
 ﻿namespace LocalNetwork
 
-open System.Collections.Generic
-
 type Network(computers: Computer list, adjacency: bool[,]) =
 
     member _.Computers = computers
@@ -10,16 +8,21 @@ type Network(computers: Computer list, adjacency: bool[,]) =
 
     member _.GetNeighbors(index: int) =
         [ for j in 0 .. computers.Length - 1 do
-            if adjacency[index, j] then yield j ]
+              if adjacency[index, j] then
+                  yield j ]
+
+    member this.InfectionFront =
+        computers
+        |> List.indexed
+        |> List.filter (fun (_, computer) -> computer.IsInfected)
+        |> List.collect (fun (index, _) -> this.GetNeighbors index)
+        |> List.distinct
+        |> List.filter (fun index -> not computers[index].IsInfected)
+
+    member this.CanChange =
+        this.InfectionFront
+        |> List.exists (fun index -> computers[index].OS.InfectionProbability > 0.0)
 
     member this.Step(random: unit -> float) =
-        let toInfect = HashSet<int>()
-
-        for i in 0 .. computers.Length - 1 do
-            if computers[i].IsInfected then
-                for j in this.GetNeighbors(i) do
-                    if not computers[j].IsInfected then
-                        toInfect.Add(j) |> ignore
-
-        for i in toInfect do
-            computers[i].TryInfect(random)
+        this.InfectionFront
+        |> List.iter (fun index -> computers[index].TryInfect random)

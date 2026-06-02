@@ -1,0 +1,286 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{geometry}
+\usepackage{listings}
+
+\geometry{margin=2.5cm}
+
+\title{Факторизованная грамматика для продвинутого лямбда-интерпретатора}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Условие}
+
+Требуется построить факторизованную однозначную грамматику без
+$\varepsilon$-переходов для языка лямбда-выражений с именованными
+определениями вида \texttt{let}. Поддерживаются:
+\begin{itemize}
+\item переменные;
+\item аппликация;
+\item лямбда-абстракция;
+\item скобки;
+\item несколько параметров у лямбда-абстракции;
+\item именованные определения.
+\end{itemize}
+
+Пустые строки и пробельные символы, не влияющие на структуру выражения,
+отбрасываются на этапе лексического анализа. Конец непустой строки
+представляется токеном \texttt{NL}. Конец входа представляется токеном
+\texttt{EOF}.
+
+\section*{Терминалы}
+
+Терминалы задаются следующими правилами:
+
+\begin{verbatim}
+LET    ::= "let"
+LAM    ::= "\"
+DOT    ::= "."
+EQ     ::= "="
+LPAREN ::= "("
+RPAREN ::= ")"
+NL     ::= конец непустой строки
+EOF    ::= конец входа
+\end{verbatim}
+
+Терминал \texttt{IDENT} обозначает идентификатор. Ключевое слово
+\texttt{let} не считается идентификатором, поэтому его нельзя использовать
+в качестве имени переменной или имени определения.
+
+\section*{Грамматика}
+
+\begin{verbatim}
+Program     ::= EOF
+| Lines EOF
+
+Lines       ::= Line
+| Line NL Lines
+
+Line        ::= Definition
+| Expr
+
+Definition  ::= LET IDENT EQ Expr
+
+Expr        ::= Lambda
+| Application
+
+Lambda      ::= LAM Params DOT Expr
+
+Params      ::= IDENT
+| IDENT Params
+
+Application ::= Atom
+| Atom Application
+| Atom Lambda
+
+Atom        ::= IDENT
+| LPAREN Expr RPAREN
+\end{verbatim}
+
+\section*{Свойства грамматики}
+
+\begin{itemize}
+\item В грамматике отсутствуют $\varepsilon$-продукции.
+\item Грамматика не содержит левой рекурсии.
+\item Пустая программа задаётся правилом \texttt{Program ::= EOF}.
+Это не является $\varepsilon$-продукцией, так как \texttt{EOF}
+считается терминалом.
+\item Именованное определение начинается с ключевого слова \texttt{let},
+поэтому оно однозначно отличается от выражения.
+\item Лямбда-абстракция однозначно распознаётся по начальному символу
+\texttt{\textbackslash}.
+\item Аппликация задаётся как непустая последовательность применений.
+\item Аппликация может оканчиваться лямбда-абстракцией без скобок.
+\end{itemize}
+
+Последовательность атомов
+
+\begin{verbatim}
+a1 a2 ... an
+\end{verbatim}
+
+при построении абстрактного синтаксического дерева интерпретируется как
+левоассоциативная аппликация:
+
+\begin{verbatim}
+(((a1 a2) a3) ... an)
+\end{verbatim}
+
+Также аппликация может оканчиваться лямбда-абстракцией без скобок.
+Например,
+
+\begin{verbatim}
+\x y. y x \x.x
+\end{verbatim}
+
+понимается как
+
+\begin{verbatim}
+\x y. ((y x) (\x.x))
+\end{verbatim}
+
+Лямбда-абстракция с несколькими параметрами
+
+\begin{verbatim}
+\x y z.M
+\end{verbatim}
+
+интерпретируется как
+
+\begin{verbatim}
+\x.\y.\z.M
+\end{verbatim}
+
+\section*{Пример вывода 1}
+
+Выведем выражение:
+
+\begin{verbatim}
+\x y.x
+\end{verbatim}
+
+\begin{verbatim}
+Expr
+=> Lambda
+=> LAM Params DOT Expr
+=> LAM IDENT Params DOT Expr
+=> LAM IDENT IDENT DOT Expr
+=> LAM IDENT IDENT DOT Application
+=> LAM IDENT IDENT DOT Atom
+=> LAM IDENT IDENT DOT IDENT
+\end{verbatim}
+
+Подставляя конкретные идентификаторы, получаем:
+
+\begin{verbatim}
+\x y.x
+\end{verbatim}
+
+\section*{Пример вывода 2}
+
+Выведем выражение:
+
+\begin{verbatim}
+S K K
+\end{verbatim}
+
+\begin{verbatim}
+Expr
+=> Application
+=> Atom Application
+=> IDENT Application
+=> IDENT Atom Application
+=> IDENT IDENT Application
+=> IDENT IDENT Atom
+=> IDENT IDENT IDENT
+\end{verbatim}
+
+Подставляя конкретные идентификаторы, получаем:
+
+\begin{verbatim}
+S K K
+\end{verbatim}
+
+\section*{Пример вывода 3}
+
+Выведем программу с именованным определением:
+
+\begin{verbatim}
+let I = \x.x
+I y
+\end{verbatim}
+
+\begin{verbatim}
+Program
+=> Lines EOF
+=> Line NL Lines EOF
+=> Definition NL Lines EOF
+=> LET IDENT EQ Expr NL Lines EOF
+=> LET IDENT EQ Lambda NL Lines EOF
+=> LET IDENT EQ LAM Params DOT Expr NL Lines EOF
+=> LET IDENT EQ LAM IDENT DOT Expr NL Lines EOF
+=> LET IDENT EQ LAM IDENT DOT Application NL Lines EOF
+=> LET IDENT EQ LAM IDENT DOT Atom NL Lines EOF
+=> LET IDENT EQ LAM IDENT DOT IDENT NL Lines EOF
+=> LET IDENT EQ LAM IDENT DOT IDENT NL Line EOF
+=> LET IDENT EQ LAM IDENT DOT IDENT NL Expr EOF
+=> LET IDENT EQ LAM IDENT DOT IDENT NL Application EOF
+=> LET IDENT EQ LAM IDENT DOT IDENT NL Atom Application EOF
+=> LET IDENT EQ LAM IDENT DOT IDENT NL IDENT Application EOF
+=> LET IDENT EQ LAM IDENT DOT IDENT NL IDENT Atom EOF
+=> LET IDENT EQ LAM IDENT DOT IDENT NL IDENT IDENT EOF
+\end{verbatim}
+
+Подставляя конкретные идентификаторы, получаем:
+
+\begin{verbatim}
+let I = \x.x
+I y
+\end{verbatim}
+
+\section*{Пример вывода 4}
+
+Выведем выражение, где аппликация оканчивается лямбда-абстракцией без скобок:
+
+\begin{verbatim}
+y x \x.x
+\end{verbatim}
+
+\begin{verbatim}
+Expr
+=> Application
+=> Atom Application
+=> IDENT Application
+=> IDENT Atom Lambda
+=> IDENT IDENT Lambda
+=> IDENT IDENT LAM Params DOT Expr
+=> IDENT IDENT LAM IDENT DOT Expr
+=> IDENT IDENT LAM IDENT DOT Application
+=> IDENT IDENT LAM IDENT DOT Atom
+=> IDENT IDENT LAM IDENT DOT IDENT
+\end{verbatim}
+
+Подставляя конкретные идентификаторы, получаем:
+
+\begin{verbatim}
+y x \x.x
+\end{verbatim}
+
+Это соответствует выражению:
+
+\begin{verbatim}
+((y x) (\x.x))
+\end{verbatim}
+
+\section*{Пример программы}
+
+\begin{verbatim}
+let S = \x y z.x z (y z)
+let K = \x y.x
+S K K
+\end{verbatim}
+
+Эта программа является последовательностью строк. Первые две строки
+являются именованными определениями, а последняя строка является
+лямбда-выражением.
+
+Также грамматика допускает определения не только в начале программы,
+например:
+
+\begin{verbatim}
+let I = \x.x
+I y
+let t = a b c
+\end{verbatim}
+
+Это корректная программа, так как каждая непустая строка является либо
+именованным определением, либо лямбда-выражением.
+
+\end{document}
